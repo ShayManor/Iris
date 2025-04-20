@@ -21,8 +21,8 @@ def apply_indicies(species):
 
 
 class Iris_Dataset(Dataset):
-    def __init__(self):
-        self.df = pd.read_csv('train.csv', dtype={'species': str, 'sepal_length': float, 'sepal_width': float, 'petal_length': float, 'petal_width': float})
+    def __init__(self, path):
+        self.df = pd.read_csv(path, dtype={'species': str, 'sepal_length': float, 'sepal_width': float, 'petal_length': float, 'petal_width': float})
         self.df['species_f'] = self.df['species'].apply(apply_indicies)
 
     def __len__(self):
@@ -56,7 +56,7 @@ class NeuralNetwork(nn.Module):
 
 
 model = NeuralNetwork()
-dataset = Iris_Dataset()
+dataset = Iris_Dataset('train.csv')
 dataloader = DataLoader(dataset, batch_size=1)
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
