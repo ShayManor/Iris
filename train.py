@@ -10,9 +10,9 @@ device = torch.accelerator.current_accelerator().type if torch.accelerator.is_av
 print(f"Using {device} device")
 
 indices = {
-    'Iris-setosa': 0.0,
-    'Iris-versicolor': 0.5,
-    'Iris-virginica': 1.0,
+    'Iris-setosa': 0,
+    'Iris-versicolor': 1,
+    'Iris-virginica': 2,
 }
 
 
@@ -31,8 +31,10 @@ class Iris_Dataset(Dataset):
     def __getitem__(self, idx):
         t = torch.tensor(
             [self.df['sepal_length'][idx], self.df['sepal_width'][idx], self.df['petal_length'][idx],
-             self.df['petal_width'][idx]], dtype=torch.float32), self.df['species_f'][idx]
-        return t
+             self.df['petal_width'][idx]], dtype=torch.float32)
+        ret = torch.zeros(3)
+        ret[self.df['species_f'][idx]] += 1
+        return t, ret
 
 
 class NeuralNetwork(nn.Module):
@@ -43,7 +45,7 @@ class NeuralNetwork(nn.Module):
         self.r1 = nn.ReLU()
         self.fc2 = nn.Linear(128, 128)
         self.r2 = nn.ReLU()
-        self.fc3 = nn.Linear(128, 1)
+        self.fc3 = nn.Linear(128, 3)
 
     def forward(self, x):
         x = x[0]
@@ -58,9 +60,9 @@ class NeuralNetwork(nn.Module):
 model = NeuralNetwork()
 dataset = Iris_Dataset('train.csv')
 dataloader = DataLoader(dataset, batch_size=1)
-criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=0.001)
-epochs = 10
+criterion = nn.MSELoss()
+optimizer = optim.Adam(model.parameters(), lr=0.005)
+epochs = 40
 for epoch in range(epochs):
     for inputs, labels in dataloader:
         optimizer.zero_grad()
