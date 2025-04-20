@@ -5,6 +5,7 @@ with open('IRIS.csv', 'r') as f:
 train = []
 test = []
 for line in lines:
+
     if random.Random().random() < 0.15:
         test.append(line)
     else:
